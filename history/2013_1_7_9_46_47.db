@@ -1,0 +1,135 @@
+[{Redirect a windows command line program to a GUI field} {Is is possible to do the above. I'm still working on my GUI and I want to see, in real time, the output of my command line program just as you would see in a dos command window, but show it on my GUI somehow. I assume a field would be where it could display??} "tony" "18-Jan-2012/22:19:34-8:00" {Well, you will run into challenges long before getting to the GUI part. I would focus on trying this in the REBOL console first.
+
+It would mean saving the output of the command line program to disk and poll on that file once in a while, by opening a port to the file and copy from it. This would run in a loop with a small WAIT to avoid too much CPU usage.
+
+You can't do this with CALL, if that is what you were expecting.
+
+I'd suggest reading up on ports:
+
+http://www.rebol.com/docs/core23/rebolcore-14.html} "Henrik" "19-Jan-2012/4:19:07-8:00" {also check:
+http://softinnov.org/rebol/acall.shtml
+} "Endo" "20-Jan-2012/2:50:41-8:00"] ["Variable changing when it shouldn't" {Here is a simple script output. I can't understand why var1 is changing. I don't want it to change. I want to copy var1 into var2 and work with var2 only. 
+
+ var1: ["my" "name"]
+== ["my" "name"]
+>>
+>> f5: "tony"
+== "tony"
+>>
+>> var2: var1
+== ["my" "name"]
+>>
+>> replace var2 "name" f5
+== ["my" "tony"]
+>>
+>> probe var2
+["my" "tony"]
+== ["my" "tony"]
+>>
+>> probe var1
+["my" "tony"]
+== ["my" "tony"]
+
+Why has var1 changed, it should be "my" "name" shouldn't it??} "tony" "20-Jan-2012/16:04:59-8:00" {You did
+
+var2: var1
+
+which means var1 and var2 are two references to the same block. If you want an extra block, use COPY in that assignment.} "Kaj" "20-Jan-2012/20:16:55-8:00" "Nice, thanks a lot Kaj!" "tony" "20-Jan-2012/21:58:29-8:00"] [{Quotes or Curly Brackets - depends on file extension - Really?} {OK, I am trying to replace in a block some text with a filename loaded into a field. When I choose a filename ending with .zip, when replaced, it is great, it has quotes around it, which I DO need. When I select a filename with a .mkv, which is what I will actually use in this script, I get curly brackets around the replaced filename. I don't get it. Try it out here - 
+
+R E B O L []
+
+avsfile: ["resizeTOx = 1280.0"
+"resizeTOy = 720"
+"directshowsource(moviepath,fps=23.976,audio=false)"
+]
+
+gui: layout [
+ size 600x300
+ 
+    across
+
+label black "Path to movie:"  tab f4: field 300 "Select File" btn "Load" [f4/text: to-local-file to-file request-file show f4] return
+
+
+btn "Start" [avsfile2: copy avsfile 
+replace avsfile2 "directshowsource(moviepath,fps=23.976,audio=false)" rejoin ["directshowsource(" remold f4/text ",fps=23.976,audio=false)"] 
+write/lines %movie.avs avsfile2
+]
+
+]
+
+view center-face gui
+
+
+
+
+} "tony" "21-Jan-2012/18:49:21-8:00" {It seems if the width of the field is shorter than the file path rebol puts curly brackets around it instead of quotes???} "tony" "21-Jan-2012/20:36:01-8:00" {Quotes are used for single-line strings shorter than 50 characters. Curly brackets are used for strings of more than 50 characters and for multi-line strings.
+
+There is no internal difference between them and you can ignore this, when probing strings. They are the same type: string!.
+
+When entering strings, the only time you are required to use curly brackets, is when entering multi-line strings, but you can use them at any time, short or long. Attempting to use quotes on creating a multi-line string will result in a syntax error.
+
+When using curly brackets, you also no longer have to escape quotes and can type:
+
+{"}
+
+instead of:
+
+"^^""} "Henrik" "22-Jan-2012/4:49:17-8:00" {Henrik
+  Yes, that probably the reason I'm getting the curly brackets when I select a file name longer than 50 characters, but how do I change them back to quotes, as you can see in my script when the movie.avs file is written, rebol uses the curly brackets around the filepath which an external application will access. It needs quotes to understand the filepath, not curly brackets. Is there a command I can use to change the curly brackets to quotes?} "tony" "22-Jan-2012/12:41:34-8:00" {solved by doing this with the rejoin command
+
+rejoin [{directshowsource("} f4/text {",fps=} fps {,audio=false)}]
+} "tony" "22-Jan-2012/14:53:45-8:00" "Right, that's exactly the best way to do it." "Kaj" "22-Jan-2012/16:21:55-8:00"] ["sftp access" {I need to access files over sftp...can R2 do this? Can someone point me in the right direction please?} "ecollage" "25-Jan-2012/6:43:05-8:00" {I used psftp.exe (open source command-line interactive SFTP client, Copyright © 1997-2007 Simon Tatham.) from R2 using CALL function.
+
+I think there is no direct support for sftp.} "Endo" "25-Jan-2012/8:34:18-8:00" {You can also use cURL binding from there: http://rebol.esperconsultancy.nl/extensions/cURL/} "DocKimbel" "25-Jan-2012/8:38:01-8:00"] ["Appending variable contents to block" {I'm trying to append a variable contents into a block like this -
+
+path: "c:\file.txt"
+
+f5: [--crf 20 --preset veryfast --tune film --level 4.1]
+
+append f5 [ --output path movie.avs]
+
+I need to add the "path" variable contents to the f5 block. I can't seem to get the contents, only the variable name when I do this. I tried adding "reduce" like this - 
+
+append f5 reduce [ --output path movie.avs]
+
+but that only works if all the block items are variables. I only have one block item variable (path).
+
+
+} "tony" "23-Jan-2012/16:01:27-8:00" {Figured it out --
+
+append f5 rejoin [{ --output "} path {" movie.avs}]} "tony" "24-Jan-2012/2:57:47-8:00" {Alternatively, you can also use COMPOSE and parens around values to reduce:
+
+`append f5 compose [ --output (path) movie.avs]`} "DocKimbel" "25-Jan-2012/8:40:24-8:00"] [{Can I drag and drop a file onto a GUI window into a field?} {Just wondering if this is possible in Rebol. I tried searching but nothing was obvious. Just want to do this instead of using a button to select a file.} "tony" "23-Jan-2012/0:20:01-8:00" {Check this script from Gregg Irwin: http://www.rebol.org/view-script.r?script=sys-port-drag-accept.r
+
+Windows only.} "Endo" "23-Jan-2012/5:36:31-8:00" {No drag'n drop support for View windows, it can only work with the console window.} "DocKimbel" "25-Jan-2012/8:42:56-8:00"] [{Getting user input using a nice window - not the console window} {Is this possible. I just want to enter two digits using a nice window that asks a question.} "tony" "26-Jan-2012/0:26:36-8:00" {Type ? "request" on Console, there are some request-* functions. Try this also:
+name: request-text "name?"
+
+If you want your own, examine the source of "request" functions:
+
+?? request-text} "Endo" "26-Jan-2012/3:29:56-8:00" "yes, that's works great!" "tony" "27-Jan-2012/20:25:58-8:00"] ["Extract a word from a string - not easy  for me!" {I've spent all day trying to extract one word from a string and am totally frustrated. Here is a string - 
+
+str: "John and Terry went home"
+
+I do not want anything after the part I want to find. Find the word "went".
+
+find str "went"
+
+"went home" is returned. How do I get only the word "went"?} "tony" "27-Jan-2012/20:25:07-8:00" {case [] function works good! 
+Is there anything better??} "tony" "28-Jan-2012/0:25:39-8:00" {There are several ways to achieve it depending on your usage context:
+
+
+1) parse str [to "went" copy w to " "]
+   ?? w
+
+2) w: form fourth load str
+   ?? w
+
+3) w: fourth parse str none
+   ?? w
+   
+4) pos: find str "went" 
+   w: copy/part pos find pos " "
+   ?? w
+
+Hope this helps.} "DocKimbel" "28-Jan-2012/3:24:19-8:00" {Thanks Doc! I decided to use "either" function instead. I just needed to test for a word, not retrieve it this time.} "tony" "28-Jan-2012/15:36:28-8:00"] [{Button in one gui creates another gui but first gui disappears} {I have a button in one gui opening another gui to do a side function, but the first gui totally disappears. Actually I would like the first gui to come back when I close the second gui, is this possible?} "tony" "28-Jan-2012/15:41:25-8:00" {I just put "view center-face gui" at the end of the second gui's script and it takes me back to the main gui! Nice!} "tony" "28-Jan-2012/16:19:02-8:00" {You can also use VIEW/NEW to create a new window. If you want a modal dialog (main window is blocked and the new window is kept at the front), use INFORM.} "Henrik" "29-Jan-2012/3:46:24-8:00"] ["Parsing w

@@ -1,0 +1,1069 @@
+["Variable changing when it shouldn't" {Here is a simple script output. I can't understand why var1 is changing. I don't want it to change. I want to copy var1 into var2 and work with var2 only. 
+
+ var1: ["my" "name"]
+== ["my" "name"]
+>>
+>> f5: "tony"
+== "tony"
+>>
+>> var2: var1
+== ["my" "name"]
+>>
+>> replace var2 "name" f5
+== ["my" "tony"]
+>>
+>> probe var2
+["my" "tony"]
+== ["my" "tony"]
+>>
+>> probe var1
+["my" "tony"]
+== ["my" "tony"]
+
+Why has var1 changed, it should be "my" "name" shouldn't it??} "tony" "20-Jan-2012/16:04:59-8:00" {You did
+
+var2: var1
+
+which means var1 and var2 are two references to the same block. If you want an extra block, use COPY in that assignment.} "Kaj" "20-Jan-2012/20:16:55-8:00" "Nice, thanks a lot Kaj!" "tony" "20-Jan-2012/21:58:29-8:00"] [{Quotes or Curly Brackets - depends on file extension - Really?} {OK, I am trying to replace in a block some text with a filename loaded into a field. When I choose a filename ending with .zip, when replaced, it is great, it has quotes around it, which I DO need. When I select a filename with a .mkv, which is what I will actually use in this script, I get curly brackets around the replaced filename. I don't get it. Try it out here - 
+
+R E B O L []
+
+avsfile: ["resizeTOx = 1280.0"
+"resizeTOy = 720"
+"directshowsource(moviepath,fps=23.976,audio=false)"
+]
+
+gui: layout [
+ size 600x300
+ 
+    across
+
+label black "Path to movie:"  tab f4: field 300 "Select File" btn "Load" [f4/text: to-local-file to-file request-file show f4] return
+
+
+btn "Start" [avsfile2: copy avsfile 
+replace avsfile2 "directshowsource(moviepath,fps=23.976,audio=false)" rejoin ["directshowsource(" remold f4/text ",fps=23.976,audio=false)"] 
+write/lines %movie.avs avsfile2
+]
+
+]
+
+view center-face gui
+
+
+
+
+} "tony" "21-Jan-2012/18:49:21-8:00" {It seems if the width of the field is shorter than the file path rebol puts curly brackets around it instead of quotes???} "tony" "21-Jan-2012/20:36:01-8:00" {Quotes are used for single-line strings shorter than 50 characters. Curly brackets are used for strings of more than 50 characters and for multi-line strings.
+
+There is no internal difference between them and you can ignore this, when probing strings. They are the same type: string!.
+
+When entering strings, the only time you are required to use curly brackets, is when entering multi-line strings, but you can use them at any time, short or long. Attempting to use quotes on creating a multi-line string will result in a syntax error.
+
+When using curly brackets, you also no longer have to escape quotes and can type:
+
+{"}
+
+instead of:
+
+"^^""} "Henrik" "22-Jan-2012/4:49:17-8:00" {Henrik
+  Yes, that probably the reason I'm getting the curly brackets when I select a file name longer than 50 characters, but how do I change them back to quotes, as you can see in my script when the movie.avs file is written, rebol uses the curly brackets around the filepath which an external application will access. It needs quotes to understand the filepath, not curly brackets. Is there a command I can use to change the curly brackets to quotes?} "tony" "22-Jan-2012/12:41:34-8:00" {solved by doing this with the rejoin command
+
+rejoin [{directshowsource("} f4/text {",fps=} fps {,audio=false)}]
+} "tony" "22-Jan-2012/14:53:45-8:00" "Right, that's exactly the best way to do it." "Kaj" "22-Jan-2012/16:21:55-8:00"] ["sftp access" {I need to access files over sftp...can R2 do this? Can someone point me in the right direction please?} "ecollage" "25-Jan-2012/6:43:05-8:00" {I used psftp.exe (open source command-line interactive SFTP client, Copyright © 1997-2007 Simon Tatham.) from R2 using CALL function.
+
+I think there is no direct support for sftp.} "Endo" "25-Jan-2012/8:34:18-8:00" {You can also use cURL binding from there: http://rebol.esperconsultancy.nl/extensions/cURL/} "DocKimbel" "25-Jan-2012/8:38:01-8:00"] ["Appending variable contents to block" {I'm trying to append a variable contents into a block like this -
+
+path: "c:\file.txt"
+
+f5: [--crf 20 --preset veryfast --tune film --level 4.1]
+
+append f5 [ --output path movie.avs]
+
+I need to add the "path" variable contents to the f5 block. I can't seem to get the contents, only the variable name when I do this. I tried adding "reduce" like this - 
+
+append f5 reduce [ --output path movie.avs]
+
+but that only works if all the block items are variables. I only have one block item variable (path).
+
+
+} "tony" "23-Jan-2012/16:01:27-8:00" {Figured it out --
+
+append f5 rejoin [{ --output "} path {" movie.avs}]} "tony" "24-Jan-2012/2:57:47-8:00" {Alternatively, you can also use COMPOSE and parens around values to reduce:
+
+`append f5 compose [ --output (path) movie.avs]`} "DocKimbel" "25-Jan-2012/8:40:24-8:00"] [{Can I drag and drop a file onto a GUI window into a field?} {Just wondering if this is possible in Rebol. I tried searching but nothing was obvious. Just want to do this instead of using a button to select a file.} "tony" "23-Jan-2012/0:20:01-8:00" {Check this script from Gregg Irwin: http://www.rebol.org/view-script.r?script=sys-port-drag-accept.r
+
+Windows only.} "Endo" "23-Jan-2012/5:36:31-8:00" {No drag'n drop support for View windows, it can only work with the console window.} "DocKimbel" "25-Jan-2012/8:42:56-8:00"] [{Getting user input using a nice window - not the console window} {Is this possible. I just want to enter two digits using a nice window that asks a question.} "tony" "26-Jan-2012/0:26:36-8:00" {Type ? "request" on Console, there are some request-* functions. Try this also:
+name: request-text "name?"
+
+If you want your own, examine the source of "request" functions:
+
+?? request-text} "Endo" "26-Jan-2012/3:29:56-8:00" "yes, that's works great!" "tony" "27-Jan-2012/20:25:58-8:00"] ["Extract a word from a string - not easy  for me!" {I've spent all day trying to extract one word from a string and am totally frustrated. Here is a string - 
+
+str: "John and Terry went home"
+
+I do not want anything after the part I want to find. Find the word "went".
+
+find str "went"
+
+"went home" is returned. How do I get only the word "went"?} "tony" "27-Jan-2012/20:25:07-8:00" {case [] function works good! 
+Is there anything better??} "tony" "28-Jan-2012/0:25:39-8:00" {There are several ways to achieve it depending on your usage context:
+
+
+1) parse str [to "went" copy w to " "]
+   ?? w
+
+2) w: form fourth load str
+   ?? w
+
+3) w: fourth parse str none
+   ?? w
+   
+4) pos: find str "went" 
+   w: copy/part pos find pos " "
+   ?? w
+
+Hope this helps.} "DocKimbel" "28-Jan-2012/3:24:19-8:00" {Thanks Doc! I decided to use "either" function instead. I just needed to test for a word, not retrieve it this time.} "tony" "28-Jan-2012/15:36:28-8:00"] [{Button in one gui creates another gui but first gui disappears} {I have a button in one gui opening another gui to do a side function, but the first gui totally disappears. Actually I would like the first gui to come back when I close the second gui, is this possible?} "tony" "28-Jan-2012/15:41:25-8:00" {I just put "view center-face gui" at the end of the second gui's script and it takes me back to the main gui! Nice!} "tony" "28-Jan-2012/16:19:02-8:00" {You can also use VIEW/NEW to create a new window. If you want a modal dialog (main window is blocked and the new window is kept at the front), use INFORM.} "Henrik" "29-Jan-2012/3:46:24-8:00"] ["Parsing with to" {I'm building a web scraping application which when modeled like this works as I expect:
+
+p:      " stuff <h1>  a header </h1> <p> some words </p> <p>  more words </p>  whatever "
+
+chars:  charset [ #"a" - #"z" ] 
+h1:  [ <h1> copy title any chars (print title)</h1> ]
+para:  [ <p> copy  ptext any chars (print ptext) </p> ]
+
+r:      parse p [ any chars h1 some para any chars end ]
+
+print r
+
+Output is:
+  a header 
+ some words 
+  more words 
+true
+
+If, instead, I do something similar with "to", I get an error.
+
+p:     " stuff <h1>  a header </h1> <p> some words </p> <p>  more words </p>  whatever "
+
+
+header:   [  <h1> copy title to </h1> (print title) ]
+para:  [ <p>  copy ptext to  </p>  (print ptext)]
+
+ r: parse p  [ to header  [some para ] to  end]
+ print r
+ 
+
+** Script Error: Invalid argument: <h1> copy title to </h1> print title
+** Near: r: parse p [to header [some para] to end] 
+print
+
+Can someone explain why "to" behaves so differently than "any chars"?  I'm sure that I'm missing something.
+
+Thanks for your help.  } "Andyh" "25-Jan-2012/23:46:28-8:00" {This is because string parsing and block parsing is totally different. Take a look in Core manual about them.
+In string parsing there are characters, in block parsing there are REBOL values (words, numbers, blocks)
+} "Endo" "26-Jan-2012/3:26:36-8:00" {TO cannot accept a rule as argument. You could use instead:
+
+    r: parse p [ to <h1> header [some para ] to end] 
+
+} "DocKimbel" "28-Jan-2012/3:38:03-8:00" {Thanks a bunch Doc.  I think I've got it.   Now I'll try some real web pages!} "Andyh" "29-Jan-2012/15:02:26-8:00" {Happy scraping! That is what's made me want to learn REBOL in the first place, twelve years ago. ;-)} "DocKimbel" "30-Jan-2012/13:47:12-8:00"] [{How to jump to another buttons Action from another point in script} {I'm trying to do this. I'll have to think about it.} "tony" "28-Jan-2012/16:53:41-8:00" "I can't figure this one out. Is it possible?" "tony" "30-Jan-2012/17:37:51-8:00" {I'm not sure what is meant here. If you are referring to running a button action, you can do so by:
+
+view layout [b: button "hello" [print "world"]]
+
+and then, somewhere else:
+
+b/action b
+
+There is a value parameter as well, although I didn't use it above, but it would be:
+
+b/action b some-value} "Henrik" "31-Jan-2012/6:48:04-8:00"] ["Strange behave when read files" {Hi people
+how can I force rebol not to add my home-path to the file-name, when
+the script is started from a batch-file?
+
+This comes out:
+#########################
+%C:/reb2bat/make_frame.r
+** Access Error: Cannot open /C/Dokumente und Einstellungen/Administrator/C:/reb2bat/make_frame.r
+** Near: fin: read to-file input
+forever
+>>
+#########################
+
+
+printed by the following commands:
+#########################
+probe to-file input
+fin: read to-file input
+forever []
+#########################
+
+
+As you can see the homepath "/C/Dokumente und Einstellungen/Administrator/" is automatically added to the file %C:/reb2bat/make_frame.r
+
+any idea?
+Best rgds,
+Holger
+
+Ps.: I'm still new in Rebol
+} "Holger" "23-Feb-2012/15:40:50-8:00" {OK,
+I fixed this my self:
+
+arg: to-string system/options/args
+replace/all arg "\" "/"
+replace/all arg ":" ""
+replace/all arg ".r" ""
+filen: last parse/all arg {/}
+path: to-file join "/" replace arg filen ""
+
+system/options/path: path
+system/script/path: path
+system/script/parent/path: path
+} "Holger" "23-Feb-2012/20:19:16-8:00" {ok thats what it is all about:
+
+save this as "rebol2bat.bat"
+@rem #######################################################################
+@echo off
+echo R E B O L []>go.r
+echo do decompress>>go.r
+echo #{>>go.r
+echo 789C7D50416E033108BCF30AE47BE3FB7E25CDC1DDB0892B8A2D2055A3AA7F2F>>go.r
+echo EB6C15A5957A4168661806945E1AE3FE0050F434A1B72773AD7242BB9AD35B6E>>go.r
+echo DD6B13CBC11A28752E33E5C28C01607A4E9872FA8B4F8127582A934CC8C51C7B>>go.r
+echo 51BB0B3EF317F4E2E7B17095E16BABB27AE1E63564C36075825F696EB36BFD61>>go.r
+echo 6CD6DAFD3F42491E78A8D22F7E4F705B06EDE20FF008B605D905B9F30F8F404B>>go.r
+echo 8DCB94CA317315321C66B0B480E633724CC81E7A7CD291E1B075E9D884D250BD>>go.r
+echo 93C6D3BF01088F827D7E010000>>go.r
+echo }>>go.r
+rebol -s go.r %1
+del go.r
+@rem #######################################################################
+
+
+save this as "print.r"
+;###########################################################################
+R E B O L []
+arg: to-string system/options/args
+replace/all arg "\" "/"
+replace/all arg ":" ""
+filen: last parse/all arg {/}
+path: to-file join "/" replace arg filen ""
+system/options/path: path
+system/script/path: path
+system/script/parent/path: path
+input: to-file filen 
+fin: read/lines input
+foreach l fin[
+print l
+]
+print "done"
+forever[]
+;###########################################################################
+
+you need to have rebol.exe somewhere in a place, that it can run from anywhere
+
+drag "print.r" to "rebol2bat.bat" don't care about anything.
+You'll get print.bat, that just runs from everywhere (you drag any file onto "print.bat" no "print.r" needed any more!)
+
+follow the rules:
+
+arg: to-string system/options/args
+replace/all arg "\" "/"
+replace/all arg ":" ""
+filen: last parse/all arg {/}
+path: to-file join "/" replace arg filen ""
+system/options/path: path
+system/script/path: path
+system/script/parent/path: path
+
+makes it possible for you to get the arguments (usualy files) by drag them onto the bat-file
+
+have fun.
+Holger
+} "Here the result" "23-Feb-2012/20:51:10-8:00" {If the leading % in a file! value is followed by a /, the filepath is taken to be absolute. If not it is taken to be a relative path.
+
+You cold solve your problem by using the following:
+
+%/C/reb2bat/make_frame.r} "Peter Wood" "24-Feb-2012/21:14:41-8:00" {Sounds good.
+I'll do some tests using this.
+
+Thanx a lot
+:)} "Holger " "27-Feb-2012/16:38:29-8:00"] ["Script Error - Cannot use path on Integer! object" {factor: func [ arg1 [integer!]] [
+  x: 1
+  while [ arg1 > 1 ] [
+    x: x * arg1
+    arg1: arg1 - 1 ]
+  return x  
+]
+
+This works in the REBOL interpreter but not in my embedded RPN calculator script.  } "RonG" "14-Mar-2012/22:52:33-7:00" {It looks the problem is somewhere else. Could you provide the rest of the script?
+
+One little note:
+Your function changes the x in global scope (it may be used somewhere else and leads to the problem you have)
+No need for Return.
+
+This will be a bit better:
+
+factor: func [arg1 [integer!] /local x] [ 
+    x: 1 
+    while [ arg1 > 1 ] [ 
+     arg1: arg1 - 1
+     x: x * arg1 
+    ] 
+ ]
+} "Endo" "21-Mar-2012/7:42:17-7:00"] ["Key hooker" {Hi,
+
+I am looking to develop a key-hooker which will detect when, using a text editor such as notepad, I press a function key (for example F10).
+I saw the engage and detect feel function but I can't understand if it work when the focus is not on the Rebol application (in this case, the focus is in notepad).
+Do you have any advice on how to do that (how to detect pressed keys in the background)?
+
+Thx} "Maomao" "20-Mar-2012/9:17:32-7:00" {On Windows, use the system API for that:
+
+RegisterHotKey
+"The RegisterHotKey function defines a system-wide hot key."
+
+'declaration for vb, you can convert it to REBOL
+Declare Function RegisterHotKey Lib "user32" Alias "RegisterHotKey" (ByVal hwnd As Long, ByVal id As Long, ByVal fsModifiers As Long, ByVal vk As Long) As Long
+
+
+UnregisterHotKey
+"The UnregisterHotKey function frees a hot key previously registered by the calling thread."
+
+Declare Function UnregisterHotKey Lib "user32" Alias "UnregisterHotKey" (ByVal hwnd As Long, ByVal id As Long) As Long
+
+Search for API-Guide or AllApi.net you can find examples there.
+
+Hope this helps.
+} "Endo" "21-Mar-2012/7:47:17-7:00" {Thx a lot, I will have a look a this and keep you updated} "maomao" "23-Mar-2012/6:15:46-7:00" {Take a look at http://re-bol.com/rebol.html#section-9.8 to learn how to actions Windows API functions.
+
+Here's the first VB example above converted to a REBOL function:
+
+lib: load/library %user32.dll
+
+RegisterHotKey: make routine! [
+    return: [integer!]
+    hwnd [integer!] 
+    id [integer!] 
+    fsModifiers [integer!]
+    vk [integer!]
+] lib "RegisterHotKey"
+
+; Once an imported function is defined, use it like any other REBOL function:
+
+RegisterHotKey hwnd id fsModifiers vk
+
+; Close the library when done:
+
+free lib} "Nick" "23-Mar-2012/21:21:31-7:00"] ["RFO Basic for Android" {RFO Basic for Android is really useful, and a perfect compliment to REBOL, for mobile development:  http://laughton.com/basic/   It's the best on-device Android scripting tool I've found.  It's really powerful:  access to all hardware, sensors, file system, networking, sqlite, sound, graphics, etc.  It's ridiculously simple to learn, 1 Meg download directly to your Android device, doesn't require ANYTHING installed on any desktop computer (it's a complete on-device programming environment), but if you do install Eclipse on your PC, you can create normal APK files which can be distributed in the Android app store.  It's my favorite development find since REBOL.  In several days, I've created a bunch of really useful apps.
+
+This script connects with a REBOL server program, and allows me to transfer files to my Android device over any WIFI network:  http://rfobasic.freeforums.org/desktop-file-transfer-t621.html} "Nick" "8-Mar-2012/9:58:20-8:00" {Updated the above scripts a bit.  Really liking RFO Basic - it's simple and powerful, like REBOL.  My Android is now a useful personal computing device :)} "Nick" "8-Mar-2012/12:26:23-8:00" {I uploaded a working .apk file of the above program to http://laughton.com/basic/programs/filetransfer.apk} "Nick" "8-Mar-2012/13:48:10-8:00" {Writing a tutorial for rfobasic right now :)
+
+http://rfobasic.com} "Nick" "10-Mar-2012/22:24:35-8:00" "That's cool Nick! Thanks for sharing!" "Endo" "12-Mar-2012/4:11:57-7:00" {Nick, thanks for sharing your findings and work. I think I'll spend some time checking this language out.} "James_Nak" "1-Apr-2012/10:14:40-7:00" {Hi Nick,
+
+thanks for pointing out this language. 
+
+do you code directly on the android device ?  or is there a way to code on windows platform and then transfer over the final product to your android device ?
+
+} "yuem" "7-Apr-2012/8:24:07-7:00" {It's nice to be able to edit on Android, and I have forced myself to write a bit entirely on the device (AI keyboard is helpful with it's undo and advanced editing features).  My preference, though, is to write on PC and then transfer using WIFI file transfer pro:  https://play.google.com/store/apps/details?id=com.smarterdroid.wififiletransferpro&hl=en
+
+No cables to attach.  Just edit, transfer the file(s) over air, and load/run on Android.} "Nick" "12-Apr-2012/8:05:10-7:00"] ["Guitar LED Tablature " {Some Rebol Programmers are also guitarists,
+so have a squiz at this, eh Nick!
+
+http://www.gizmag.com/tabber-led-sleeve-guitar-teaching-systems/22063/
+
+or, http://www.musicalight.com/
+
+Thanks for your Rebol work, its great!} "Beethoven" "5-Apr-2012/1:16:18-7:00" {I have a student with Down Syndrome who's been using the Optek LED guitar for years.  It's nice to see other options!} "Nick" "12-Apr-2012/8:08:18-7:00"] ["AltME REBOL3 world is down" {The AltME REBOL3 word went down yesterday, so anyone who are members, but wish to continue discussions can do so in the Rebol4 world that is currently run by me.
+
+We have created a new world, as we suspect the old one is not coming back up, as it's run by Carl, who is decidedly absent.
+
+I have invited all those that were there online this year, but if you did not receive an invite and want in, just post your user name here (do not post your email here!).
+
+Remember that your REBOL3 world is not lost: You can browse it along with your private messages offline.
+
+Thanks.} "Henrik" "26-Feb-2012/4:53:51-8:00" "Please add NickA to REBOL4" "Nick" "26-Feb-2012/11:33:02-8:00" {http://rebol.org still hosts the history of AltME discussions, for users who want to search it on the web.} "Nick" "26-Feb-2012/11:37:53-8:00" {Nick, I have already added you. You should have received an email with an invitation.} "Henrik" "26-Feb-2012/13:36:39-8:00" "Thank you - got it!" "Nick" "26-Feb-2012/21:02:19-8:00" "Please add user Brock to Rebol4... Tx." "Brock" "27-Feb-2012/22:50:18-8:00" "Please add user ddharing to REBOL4. Thanks." "David den Haring" "28-Feb-2012/13:59:49-8:00" {Does the admin for REBOL4 know my email address? How do I know when I can login to REBOL4 and what my password is?} "David den Haring" "29-Feb-2012/15:08:25-8:00" {I found the invitation email...finally.
+
+I'm able to login to REBOL4.} "David den Haring" "29-Feb-2012/18:33:11-8:00" {Brock, I'm sorry, I neglected your message. I have no excuse. I sent an invite to the email address that was stored in the REBOL3 world, which had "rogers" in it.} "Henrik" "1-Mar-2012/14:10:18-8:00" "Please add MikeL to Rebol4" "MikeL" "2-Mar-2012/20:05:37-8:00" {MikeL, an invite was sent to your "sympatico" email address.} "Henrik" "3-Mar-2012/3:32-8:00" "NickD" "NickD" "5-Mar-2012/11:36:12-8:00" {NickD, again. I was not on the previous forums. How do you intend to notice my password? Would it just be the default PASS?} "NickD" "5-Mar-2012/11:42:20-8:00" "Please add me to the Rebol 4 world.  Tx" "PatrickP61" "5-Mar-2012/11:55:46-8:00" "Please add PatrickP61 to Rebol4 world.  Tx." "PatrickP61" "5-Mar-2012/11:57:09-8:00" {NickD, I have made it to the password you mention. Please change it immediately after logging in.
+
+Patrick, I've sent you a notification on your Gmail address.} "Henrik" "5-Mar-2012/15:05:05-8:00" "Please add me." "mikec" "6-Mar-2012/15:41:33-8:00" {mikec, I'm going to need more details. I don't see your user name in the REBOL3 world. If you didn't have one, I will need an email address, if you can properly obfuscate it here.} "Henrik" "7-Mar-2012/7:36:18-8:00" {BTW, the REBOL3 world is up again, but since the new world has filesharing, is managed by the community instead of Carl, and is generally a good chance to start over, people seem to prefer it.} "Henrik" "7-Mar-2012/7:37:21-8:00" {We are having some problems restarting the Rebol4 world. Looking into it.} "Henrik" "7-Mar-2012/11:37:22-8:00" {howdy,
+
+NickD again, for some reason NickD with pw PASS did not work. Maybe some spammer got to it first. if you could toss a new pw to me @ truthfulventures at disciples dot com I would appreciate it. Looking forward to it
+
+thanks} "NickD" "7-Mar-2012/11:46:58-8:00" {OK, NickD, we will do that, once the world is running again. Still having trouble.} "Henrik" "7-Mar-2012/12:34:01-8:00" "Thanks so much." "NickD" "7-Mar-2012/12:39:42-8:00" "The Rebol4 world has been started again." "Henrik" "7-Mar-2012/13:27:50-8:00" {Now the world lookup server appears to be down. This means that AltME can't connect to anything. We'll see if/when it comes back up.} "Henrik" "14-Mar-2012/4:08:59-7:00" {oh my, hope it is just a service being down, not planned action of RT. Was already thinking of some stunnel bridge, allowing us to redirect the look-up request to our own server ...} "-pekr-" "14-Mar-2012/4:24:45-7:00" {A temporary "refuge" exists on IRC: Channels #rebol and #red-lang on irc.freenode.net} "Henrik" "14-Mar-2012/5:08:08-7:00" {Still down after 12 hours, and no reply to feedback message on altme website. They are having serious problems or are asleep.} "Simon" "14-Mar-2012/14:49:48-7:00" "It's now working again." "Henrik" "14-Mar-2012/16:10:33-7:00" {I have tried connecting to Rebol4 and REBOL4 without success.  Using AltME1.1.29 on Ubuntu 11.10 I get trying to connect for 2 minutes, then cannot connect.
+
+What should I do differently?  Can you send me an invitation to raylance / gmail?} "Ray Lance" "24-Mar-2012/11:18:26-7:00" {AltME 1.1.29 is ancient and may not be able to connect to current servers anymore. The altme.com download is stupid and leads you to download the old version. You need this one:
+
+http://altme.com/download/altme042.tar.gz} "Kaj" "25-Mar-2012/18:20:20-7:00" {ok, I got the altme1.2.21 version running after including lib32 in the LD_LIBRARY_PATH, but still can't login with my username raylance.  How can I register and/or get a password?} "Ray Lance" "29-Mar-2012/10:26:03-7:00" {It looks your username is "Ray" on rebol4 world. Default password is 1234, please change it asap when you logged in.
+} "Endo" "30-Mar-2012/4:42:54-7:00" {The REBOL4 world, simply named so, because it's the fourth one in existence, has begun making its posts web-public at:
+
+http://www.rebol.org/aga-groups-index.r?world=r4wp} "Henrik" "30-Apr-2012/2:50:56-7:00"] ["surprise can't read one dimensional array" {R E B O L [MY TEST]
+xxdata: array/initial 6 0
+j: 2
+probe xxdata/j
+
+The above doesn't work, what am I doing wrong?
+} "Gisli Gissurarson" "12-May-2012/11:25:33-7:00" {Try using one of the following:
+
+xxdata/:j
+xxdata/(j)
+pick xxdata j
+
+xxdata/j ;this tries to find J word in xxdata block:
+xxdata: [1 2 j 4 5]
+>> xxdata/j
+== 4
+} "Endo" "14-May-2012/2:49:15-7:00" {xxdata/:J is the most common way
+
+>> xxdata: array/initial 6 0
+== [0 0 0 0 0 0]
+>> j: 2
+== 2
+>> xxdata/:j
+== 0} "MaxV" "23-May-2012/3:49:56-7:00"] ["How do I dynamically produce a file path?" {Hi, I am new to Rebol and am finding the language to be very exciting. Especially for the meta- programing features. I am trying to retrieve an image based on a random selection. The following code:
+
+view layout [image %folder/subfolder/image.png]
+
+runs with no problem and displays a small window with my image. Furthermore, the following code:
+
+my-path: “%folder/subfolder/”
+my-file: “image”
+
+rejoin [my-path   my-file   “.png”]
+
+produces the string
+
+“%folder/subfolder/image.png”
+
+that I need.
+
+However, if I try:
+
+view layout [image  to-word  rejoin  [my-path   my-file   “.png”]   ]
+
+I get a window about the size of the image but without the image.
+
+If I try:
+
+compose [image (to-word rejoin [my-path my-file ".png"])]
+
+I get the block:
+
+[image %folder/subfolder/image.png]
+
+which makes me think I could try and “do” this block. But if I try:
+
+view layout [ do compose [image (to-word  rejoin  [my-path  my-file  ".png"])]]
+
+I get:
+
+** Script Error: image has no value
+** Where: forever
+** Near: image %folder/subfolder/image.png
+
+What am I doing wrong? Is trying to assemble the path I need the way to go or should I just stick to one (long) switch statement?} "Damian" "6-Jun-2012/9:49:47-7:00" {You're using a string instead of a file! type:
+
+my-path: “%folder/subfolder/”
+
+should be
+
+my-path: %folder/subfolder/
+
+The REJOIN is OK because the resulting type is taken from the first part.} "Kaj" "7-Jun-2012/8:28:44-7:00" {Further, you need to provide the block to LAYOUT in the form it needs:
+
+view layout compose [...]
+
+instead of
+
+view layout [compose [...]]
+
+COMPOSE and others are part of the default REBOL DO dialect, not of the LAYOUT VID dialect.} "Kaj" "7-Jun-2012/8:33:03-7:00" {Thank you Kaj, changing from a string to a file! type seems to produce the result I was looking for and it's great news to know that REJOIN will return a file type based on the first component of the bock.
+
+But the second part of your answer leads me to believe that I would not be able to use a COMPOSE instruction inside a VIEW LAYOUT [] block. Is that correct?
+
+Again, thanks a million} "Damian" "7-Jun-2012/8:50:19-7:00" {Well, actually you don't need to compose:
+
+a: %/c/program%20files/rebol/
+b: %view/
+c: %image.png
+view layout [image rejoin [a b c]]
+
+this will work too.
+} "Endo" "11-Jun-2012/4:45:03-7:00" {Damian, I thought you wanted to do something more complex with
+
+view layout [ do compose [image (to-word rejoin [my-path my-file ".png"])]]
+
+If you just want to compute style facets such as the image, you can indeed use regular DO expressions embedded within the VID dialect, even without using the DO keyword.
+
+If you would want to construct layouts dynamically, changing style keywords, you would have to perform a COMPOSE or REDUCE before handing the block to LAYOUT. Using DO within the VID LAYOUT block only performs a normal expression, it does not yield a VID style that can be displayed.} "Kaj" "11-Jun-2012/16:25:52-7:00"] ["Rebol IDE v.5" {Hi, I just finished Rebol IDE v.5, look at: http://rebol2.blogspot.it/2012/07/ide.html} "MaxV" "26-Jul-2012/8:20:50-7:00" {I just uploaded a new version, I removed a widget accidentally!} "MaxV" "26-Jul-2012/11:55:22-7:00"] ["Open Source News" {This message was posted to AltME 7-15-2012, apparently by those close to Carl:
+
+*Rebol source code is to be released very soon. However there will be conditions precedent to the release.
+
+Waiting and watching carefully...} "Nick" "16-Jul-2012/12:23:44-7:00" "This appears to be about REBOL3" "Nick" "16-Jul-2012/17:44:26-7:00" {Any more news on this subject? Can't acess AltME on my iPad :(} "crex" "22-Jul-2012/6:15:54-7:00" {No news. Better to follow languages like Red, if you want to see projects that are in motion right now.} "Henrik" "23-Jul-2012/3:19:54-7:00" "Astonishing news. " "Art K." "29-Jul-2012/7:28:14-7:00"] ["Code wolf" {Currently golfscript and q language win.
+
+Here you can find the requirements, tersesness rules here:  http://codegolf.stackexchange.com/questions/7036/print-custom-alphabet
+
+Cheers
+
+Francisco } "Francisco" "23-Aug-2012/23:35:12-7:00"] ["Can't make 'Show' re-display my screen" {Can't make 'Show' re-display my screen
+
+I am trying to display a new set of images after the user presses a button. The first part of the script sets a count, assigns the file path to the images to be displayed (which is done randomly within a set of options) and draws the window. This happens as expected the first time around. The button in question calls a function that re-assigns the images and then requests to show the new set of images. I know that the assignment is done properly but the window is not updated. What am I missing?
+
+This is the code in question:
+
+view gui: layout [
+
+    backdrop white
+    text font-size 15 "Set of pictures”
+    below
+    text join "Photo's clicked: " count
+    across
+    button 148x135 my-pict1 [ count: count + 1 ]
+    button 148x135 my-pict2 [ count: count + 1 ]
+    return
+    across
+    button 148x135 my-pict3 [ count: count + 1 ]
+    button 148x135 my-pict4 [ count: count + 1 ]
+    return
+    btn 148  "New set" [ set-new-picts   show gui ]
+ ]
+
+I have also tried naming the buttons (e.g. a: button 148x135 my-pict1 [ count: count + 1 ]) and then calling:
+    show [a b c d]
+
+and even trying:
+    show a   show b   show c   show d
+
+options that I collected from reading the documentation, but to no effect.
+
+I appreciate any insight and/ or solutions} "Damian" "8-Jun-2012/1:07:16-7:00" {I think you do something like that:
+
+my-pic: load %file.png
+view gui: layout [button my-pic]
+
+than you are changin the my-pic;
+my-pic: load %another-file.png
+show gui
+
+but actually you didn't change the image of your button. you my-pic word are not connected to your button's picture. You should change the picture of your button:
+
+my-pic: load %file.png
+view gui: layout [b: button my-pic]
+;...
+b/image: load %another-file.png
+show b
+
+this will change your button's picture.
+
+
+Here is another example, it loads & shows a random picture from the current path: (before run this, go to a path which holds a number of pictures)
+
+view layout [image 100x100 "Click Me!" [face/image: load-image probe random/only read %./ show face]]
+
+} "Endo" "11-Jun-2012/5:05:34-7:00" {Solution is very simple, you should act on image refinement, look at this example:
+view layout [ a: button stop.gif [a/image: logo.gif show a]]
+
+and if you want to learn more, try:
+view layout [ a: button stop.gif [? a]]} "MaxV" "26-Jul-2012/9:33:35-7:00" {Thank you Endo, your recommendations worked just fine.
+
+And thank you MaxV, your explanation was very concise and helpful. Your last example was also very illustrative. } "Damian" "26-Aug-2012/15:54-7:00"] [{'Text' only 'show's numbers between 0 and 9. How can I fix this?} {Hello!
+
+I am working on a little program that keeps a score. The GUI is set like this:
+
+hits: 0
+misses: 0
+
+view layout [
+
+^-backdrop effect [gradient 1x1 blue black]
+^-text "My title here!" font-size 32 bold underline white
+^-below
+^-across
+^-x: text font-size 24 bold gold join "Score: " hits
+^-tab
+^-y: text font-size 24 bold brick join "Misses: " misses
+]
+
+and later, according to user action, I need to update the score and print it, which I do with this:
+
+either (action = bad) [
+^-misses: misses + 1
+^-hits: hits - 1
+^-x/text: join "Score: " hits
+^-y/text: join "Misses: " misses
+^-show x
+^-show y
+   ] [
+^-hits: hits + 1
+^-x/text: join "Score: " hits
+^-show x
+   ]
+
+Everything works fine while "hits" and "misses" stay between 0 and 9 but when they become a negative number or a number with two digits (above nine) they disappear leaving only the strings "Score" and "Misses" (the other variable within range still appears after the string).
+
+This is really strange. I have tried "Text" and "Show" under other circumstances and they work as expected. Maybe this is just a very silly mistake from my part but I really can't see it. Any help is much welcomed.
+
+Thanks in advance!} "Damian" "26-Aug-2012/16:24:29-7:00"] [{"Text" only "show"s numbers between 0 and 9. How can I fix this?} {Try to set text size when creating the face:
+
+view layout [text 200 "Score: "] ;...
+} "Endo" "27-Aug-2012/7:11:10-7:00"] ["Rebol CGI on IIS6 on Windows 2003 Server" {Again I have problems running REBOL as CGI on IIS6.
+It works when I set mappings as follow on XP (IIS5)
+
+c:\core.exe -cs %s %s
+
+on IIS7 (Windows 7/2008 etc.) this on is works:
+
+c:\core.exe -cs "%s %s"
+
+But neither work on IIS6 (Window 2003)
+
+Here is the solution:
+
+"c:\core.exe" -cs "%s" %s
+
+And make sure you set Allowed c:\core.exe on Web Extensions and set the correct file permissions.} "Endo" "2-Aug-2012/9:26-7:00" "Test.." "Endo" "27-Aug-2012/6:53:21-7:00" "test" "Nick" "29-Aug-2012/9:30:43-7:00"] ["Beep sound" {Someone previously asked how to beep, and I answered with a relatively short piece of code that played a binary encoded wave file by inserting into the REBOL sound port.  For very simple needs, this 1 liner works:
+
+call/show "echo ^^G"} "Nick" "5-Sep-2012/20:55:01-7:00" {Even better:
+
+call/show/wait "echo ^^G"} "Nick" "5-Sep-2012/20:57:08-7:00" {I used the above code to create the simplest 1-line REBOL timer/stopwatch (this one waits 3 seconds then beeps):
+
+wait 3  call/show/wait "echo ^^G"
+
+
+For more elaborate waiting:
+
+s: now/time until [now/time - s > 00:00:03] call/show/wait "echo ^^G"} "Nick" "5-Sep-2012/21:03:17-7:00" {User configurable stop watch:
+
+s: request-text/title "Seconds to wait:" wait to-integer s call/show/wait "echo ^^G"} "Nick" "5-Sep-2012/21:05:33-7:00" {With a count-down:
+
+s: to-integer request-text/title "Seconds to wait:" loop s [print s s: s - 1 wait 1] call/show/wait "echo ^^G"} "Nick" "5-Sep-2012/21:09:03-7:00" {Shaved a few characters:
+
+s: to-integer ask"Seconds: "loop s[print s s: s - 1 wait 1]call/show/wait"echo ^^G"} "Nick" "5-Sep-2012/21:15:33-7:00" {I like this version more.  It gets permission to run the "call" function first:
+
+call""repeat s 3[print s wait 1]call"echo ^^G"
+
+interactive:
+
+call "" s: to-integer ask "Seconds: " repeat i s [print i wait 1] call "echo ^^G"} "Nick" "9-Sep-2012/11:21:42-7:00" {Alarm beep goes off 5 times:
+
+call "" s: to-integer ask "Seconds: " repeat i s [print i wait 1] loop 5 [call "echo ^^G" wait 1]} "Nick" "9-Sep-2012/11:25:08-7:00" {Sound port solution playing a wav file only seems to work under windows and then only as it seems in REBOL SDK version. I'll state/ask this question also on AltMe later today.} "Arnold" "11-Sep-2012/6:47:32-7:00" {Sound port works fine in every version of REBOL/View I've tried.  What OS and REBOL version are you using?} "Nick" "13-Sep-2012/16:58:03-7:00"] ["Moment of Truth" {Carl wrote a message to the community.  If you are involved in the REBOL community, please take part in the conversation:
+
+http://www.rebol.com/cgi-bin/blog.r?view=0510#comments} "Nick" "29-Aug-2012/9:32:38-7:00" "Waiting ... patiently!" "Nick" "5-Sep-2012/20:58:22-7:00" "This is a very long moment of truth." "Nick" "8-Sep-2012/4:46:01-7:00" ":-) :-/ :-(" "Kaj" "8-Sep-2012/17:06:29-7:00" "He doesn't like to communicate does he." "Nicolas" "8-Sep-2012/19:58:13-7:00" {I have years of gratitude saved up for Carl and what REBOL has provided me, so I will be as patient as is required (that is, hoping that the final result is open source...)} "Nick" "9-Sep-2012/10:23:29-7:00" {Tonight was like getting a nibble after sitting all day with worms on the hook...} "Nick" "10-Sep-2012/19:41:47-7:00" {Very encouraging!  From the blog post:
+
+It's really good to hear from everyone again. Thanks for taking the time to post your opinions and suggestions.
+
+I've read your comments and made a decision. It's time to move forward. I think most of you will be happy with the decision.
+
+I'll post a new blog to describe the next steps, and I'm going to need your help. We should be able to resume REBOL development again quite soon... but of course, with an entirely new approach to how it's been done with REBOL before.
+
+Thanks again.
+
+} "Nick" "18-Sep-2012/8:56:37-7:00"] ["Rebol is not responding in iOS deployment" {Hello,
+
+I'm trying to learn to use Rebol according to this example: http://www.adobe.com/devnet/flash/articles/join-multiple-swf-files.edu.html (Joining multiple SWF files into one SWF for iOS deployment) 
+
+I acted strictly according to instructions. I downloaded the sample files, install graphical version of REBOL, changed the path to the Flex SDK and run the script (file compile-and-run.r). First came the dialogue that I allowed to change permissions of the files. But then all down and nothing changes. Rebol is not responding. Only appear new files ExampleLevel1.swf.bin, ExampleLevel1.swf.txt etc. in 'assets'  directory. 
+
+Tell me please, what could be wrong?} "Astraport" "16-Sep-2012/4:32:55-7:00" {Getting in touch with Oldes on AltME is probably the best way to get answers about rswf.} "Nick" "25-Sep-2012/17:24:21-7:00"] ["** ANNOUNCEMENT:  REBOL WILL BE OPEN SOURCE **" {Carl Sassenrath wrote the following in his blog today http://www.rebol.com/article/0511.html
+
+
+The time has come for REBOL to be released as open source. This is the only way I can see it regaining some degree of momentum and renewed interest -- not just within our REBOL community, but for many yet-to-be users who possess the curiosity or motivation to learn new and powerful programming concepts and techniques.
+Here's my proposal
+
+    The R3 source code will be released under GPL 2 (most likely - still open to discussion.)
+    The official source release distribution (rel-src) will be made available from the REBOL.com site.
+    Developmental sources (dev-src) will be available on GitHub (or a similar service.)
+    From time to time the dev-src will be reviewed, selected, debugged, polished, and integrated into rel-src releases.
+    A small group of REBOL Masters (maybe three for now) will be in charge of such rel-src review, selection, revising, debugging, integration etc. as well as develop or encourage the development of new features, ports to new platforms, optimizations, etc.
+    My role will be to advise and guide such decisions to keep REBOL consistent with its principles, and I will hold the final power of veto, in cases where that becomes necessary.
+
+What I ask in return
+
+If this proposal seems acceptable, there's one thing I ask in return. That those of you who wish to influence and extend the design of REBOL do so with a full understanding of its principles. REBOL is not like other languages, and you will soon discover that REBOL source is not like other source. Architecture and design are important.
+
+Although it is unrealistic to assume we can filter/fix all impurities that might come about in an open environment, we should all strive to minimize the degradation that comes about by seeking an easy solution over the proper and well designed form of such a solution. Even the naming of each symbol, function, and datatype is worthy of thoughtful consideration. That is how I've always treated it.
+
+In the end a language or system should help developers make their programming tasks easier and their products more timely, affordable, manageable, and agile. Too often, it becomes the opposite. Let's always keep that in mind.
+What's next?
+
+So... this is it. Once R3 is released our course becomes irreversible. We'll all start paddling our canoes like mad in a small but rapid river... but one which I sincerely hope will carry us to a much larger ocean.
+
+Please offer your comments and advice on any of the above. This is the final call. If you posted a comment on the prior blog that you want me to review again, please note its date and time. I'll go back and take a look.
+
+My schedule is to finish this up next weekend and make the release by October 1st.} "Nick" "25-Sep-2012/9:21:52-7:00" {I'm so grateful :) And since Carl is asking for advice and comments, my suggestions are for MIT or BSD license, and also to release the source for R2, since most of the legacy production code in REBOL is actually R2.  Please take part in the comments section on the blog!} "Nick" "25-Sep-2012/17:27:15-7:00" {I love that Matz and Douglas Crockford have already made public comments about it :)} "Nick" "25-Sep-2012/17:28:41-7:00"] ["Which version to learn?" {I am a pretty much a total beginner in Programming. I have learned some HTML, CSS and experimented with several programming languages. I am not seeking a career in programming only want to use one language for all around hobby work. 
+
+I found Rebol a year or two ago. But, I saw that R3 was being developed so hesitated in starting till it was further along. Now I see that it is going to be open sourced.  So, my question is should I wait until it is further developed? I don't want to start with Rebol 2 and then have to unlearn everything for Rebol 3.} "Sp Jo Russ" "1-Oct-2012/13:21:22-7:00" {Start with R2.  It is fully functional, and able to be used for the sort of needs you likely have in mind.  You won't need to unlearn everything.  When R3 GUI, Red, and any variants become available for new platforms down the road, or with support new protocols, features, etc., there will be an overwhelming majority of familiar functions and code patterns that you'll be able to pick up quickly.} "Nick" "1-Oct-2012/14:38:14-7:00" "Okay, thanks for your help. I will do that." "Sp Jo Russ" "1-Oct-2012/20:15-7:00"] ["How to Program, Tutorial Mirror Sites" {To attract a bit more search traffic, I've mirrored my REBOL tutorial at:
+
+http://howto-program.com
+http://how-to-program.us
+http://howtocomputerprogram.com
+http://whatisacomputerprogram.com
+http://learninghowtoprogram.com
+http://learning-to-program.com} "Nick" "29-Sep-2012/13:44:05-7:00" {The full list of mirrors:
+
+http://howto-program.com
+http://how-to-program.us
+http://howtocomputerprogram.com
+http://whatisacomputerprogram.com
+http://learninghowtoprogram.com
+http://learning-to-program.com
+http://whatisprogramming.us
+http://howtoprogramacomputer.com
+http://howtomakeaprogram.com
+http://howtocreateprograms.com
+http://howtocreateaprogram.com
+http://howtocreatesoftware.us
+http://createasoftwareprogram.com
+http://createsoftware.us
+http://whatisacomputerprogram.com
+http://howtoprogram.mobi
+http://howtoprogramgames.us and http://howtoprogram.ws} "Nick" "30-Sep-2012/17:09:11-7:00" "One more:^/^/http://howtoprogram.cc" "Nick" "30-Sep-2012/22:30:41-7:00" {I'm afraid the search engines will downgrade your sites due to duplicate content.} "Kaj" "2-Oct-2012/9:21:10-7:00" "Thanks for the info Kaj." "Nick" "3-Oct-2012/22:42:37-7:00"] ["http://wheretofindaprogrammer.com" {I created a little site to write code for hire:  http://www.wherecanifindaprogrammer.com
+
+It turns out that that search term get 25 million views a month.} "Nick" "13-Oct-2012/0:54:56-7:00" {That's awesome. Do you even have time for that? :-)} "Kaj" "13-Oct-2012/12:10:38-7:00" "heh£¬it's very nice" "ttkk1024" "15-Oct-2012/4:35:14-7:00" {Kaj, I'll make time for it :)  Lately, I've been actively delegating more and more of the work in my existing projects to managers.  Clearing time for more creative work.
+
+It's a fun dream to get enough work to pass around opportunity to others in the community :)
+
+For the page above, I moved the useful content to the beginning of the article and brushed it up to sound a bit more professional.  I've got to get links everywhere to get toward the top of the Google listings.  It'll take a while, but the shear number of searches for that term is an eye popper.} "Nick" "16-Oct-2012/23:13:45-7:00"] ["R3 account on Github" {Carl set up a location to hold the R3 source on Github:
+
+https://github.com/rebol/r3-source
+
+Keep up with the blog as this progresses.  There's a lot of interesting activity!} "Nick" "16-Oct-2012/23:16:55-7:00"] ["Etsy API Tutorial" {I wrote a tutorial explaining how to use the Etsy API in REBOL:
+
+http://re-bol.com/etsy_api_tutorial.html
+
+There's a lot of beginner explanation to wade through, but there are plenty of working code examples to help make batch changes to listings in your Etsy shop.
+
+The tutorial is included on Etsy's Developer Resources Page:
+
+http://www.etsy.com/developers/documentation/resources/developer_resources
+
+The code in this tutorial makes use of Christopher Ross-Gill's Etsy client for REBOL:
+
+http://reb4.me/r/etsy.r
+
+Check out Chris's twitter API and other useful scripts at:
+
+http://reb4.me/r/} "Nick" "18-Oct-2012/11:23:19-7:00"] ["Licence" {Hi,
+Can I use source code from
+http://howto-program.com/how_to_program.html
+on my own website} "sakoba" "19-Oct-2012/11:19:55-7:00" "Sure, please just link back to the original." "Nick" "20-Oct-2012/1:48:45-7:00"] ["License Consensus" {Carl has invited Larry Rosen to take part in the the discussion about which license should be used for REBOL's source.  They're listening for a consensus from the community about which license is preferred.  Please visit http://www.rebol.com/cgi-bin/blog.r?view=0516#comments to join the discussion!} "Nick" "18-Oct-2012/11:33:11-7:00" {Hi,
+Can I Use your source code from http://howto-program.com/how_to_program.html
+on my own website
+
+Thank you} "Sakoba" "19-Oct-2012/11:18:39-7:00" "Sure, just please link back to the original :)" "Nick" "21-Oct-2012/12:46:02-7:00"] ["Progress on REBOL open source" {http://www.rebol.com/article/0517.html
+http://www.rebol.com/cgi-bin/blog.r?view=0518#comments} "Nick" "6-Nov-2012/20:40:42-8:00"] ["We had some questions ...." {http://www.rebol.com/cgi-bin/blog.r?view=0518#comments
+"Omei
+7-Nov-2012 18:08:57^- We can try forums before the source is out. We had some questions, like: which forum? Which license? How about: The advocates set up a thread (stackoverflow, reddit, others?). We meet there for some days and continue discussions."} "mike CO Omei" "8-Nov-2012/0:01:46-8:00" {The main thing that has to be added to this script, before it's used for anything serious, is a permalink feature.  Add one more field to the data structure, with an auto-incremented index, and use that as the permalink.  Currently, 'topicnumber changes as topics are rearranged by date, and it's used in the display link.  Maybe someone (Endo?) could help me improve some of the display too, when HTML is included in the topic.} "Nick" "8-Nov-2012/5:39:03-8:00"] ["RED Funding Drive" {RED FUNDING DRIVE, MATCHING FUNDS CHALLENGE:  to help ensure that Doc can continue to work on Red without disruption, I'll match funds donated to him by November 1, 2012, up to a total of $1000.} "Nick" "6-Oct-2012/15:31:11-7:00" {I'm offering another matching funds drive to help keep Doc working on Red.  I'll match funds donated to him by December 25, 2012, up to a total of $1000.  If you're interested in Red, please help Doc focus his efforts on the project.} "Nick" "26-Nov-2012/13:09:40-8:00"] ["Suggestions for new forum features" {In response to http://www.rebol.com/cgi-bin/blog.r?view=0518#comments , feel free to post your requests for improvements and changes to this forum script.  The current working code is always available by typing the following in the REBOL console:
+
+do http://rebolforum.com/index.cgi?f=source} "Nick" "30-Nov-2012/11:58:55-8:00" {I just added permalinks.  It took 15 lines of code.} "Nick" "30-Nov-2012/16:12:16-8:00" {So... It works, doesn't it?
+Excellent; what else do we nees: improvements? Sure: as I can unserstand, these CAN be done.
+
+Thanks!} "pierre " "30-Nov-2012/17:16:33-8:00" {I'd suggest adding tags. And instead of adding sub-sections (which I'm sure you'll be asked for), allow the forum's moderator/s to flag suitable tags as the forum's primary topics. Then have those primary flags appear in a line at the top of the forum with the tag-cloud containing all the tags either on its side or at the bottom.
+
+That should be easy to manage and would provide for a very dynamic collection of topics.
+
+I'd also give the tags ticky-boxes to allow the users to view a collection of them at once.
+
+(Suggestion the second: Have a captcha that easier for a human to get right than a computer;)
+} "Carl Read" "30-Nov-2012/20:08:22-8:00" "I like this.  Lets do it." "Scot" "1-Dec-2012/0:24:55-8:00" {a left click to highlight, and a clickable 
+"bold", "quote block" etc would be nice as i keep forgetting the command lines to make them
+
+oh BTW if anyone wants to try an Openstack i just found a free Calxeda instance you can register for and use, i assume you can write and use rebol API interfaces and the binary there or report that you need it installed on their "Server Images"
+
+http://trystack.org/
+http://api.openstack.org/
+and http://docs.openstack.org/api/openstack-compute/programmer/content/creating-server-images.html
+
+http://calxeda.us5.list-manage2.com/subscribe?u=b75fa1e18ed23997b18da37b0&id=9d06104a18} "bugmenot" "1-Dec-2012/13:32:23-8:00" {Carl, several others have suggested tags.   I think you're probably right about that being a more dynamic solution than sub-sections.  Do you have any existing model(s) in mind? } "Nick" "1-Dec-2012/21:58:11-8:00" {I've no tag model in particular in mind. My approach would be to just add a field here to allow the users to add tags, (perhaps using spaces as the separators and quotes to enclose multi-word tags - ie. REBOL style), and then use the tags that are gathered to experiment with how best to use them.
+
+Perhaps at least one tag should be compulsory for new topics, with them being optional in the comments. Plus the moderator/s at least should be able to add or edit the tags at a later date.
+
+And if you go with the primary-tags approach, have those easily accessible where the tags are added, so people just have to select them, not type them in. And ditto for the full tag cloud, but just not as prominent.} "Carl Read" "2-Dec-2012/5:45:27-8:00" "I'll play with it!" "Nick" "3-Dec-2012/22:34:38-8:00"] ["What is wrong ?" {Hi
+ Just discovering Rebol and i try this below:
+factorial: func [n]  [either n > 1 [n * factorial (n - 1)] [1]]
+print factorial (3)
+print factorial (2)
+print factorial (3) * factorial (2)
+
+The output is 
+6 (OK)
+2 (OK)
+720 (wrong?????)
+What i am doing wrong?} "Gérard" "29-Nov-2012/6:14:33-8:00" {Evaluation in REBOL is left to right, but <i>infix operations take precedence over prefix operations</i>.  
+
+The "*" symbol takes two values, so your code is evaluated as:
+
+factorial (3 * (factorial 2))
+factorial (3 * 2)
+factorial 6
+720
+
+Use parentheses to force precedence:
+
+>> factorial 2 + 1 * 2
+== 720
+>> factorial (2 + 1) * 2
+== 720
+>> factorial 2 + (1 * 2)
+== 24
+>> (factorial 2 + 1) * 2
+== 12
+
+So the code you want is:
+
+print (factorial 3) * (factorial 2)
+or
+print (factorial 3) * factorial 2      ; second parens not required
+
+(factorial 3) * (factorial 2)
+6 * 2
+12
+
+To add some more clarification, all infix operators have prefix versions:
+
+(2 * 2) = (* 2 2)
+
+So, another way to write your intended expression could be:
+
+print * factorial 3 factorial 2 
+
+Be sure to look at the source:
+
+source *
+
+*: native [
+    "Returns the first value multiplied by the second."
+    value1 [number! pair! char! money! time! tuple!]
+    value2 [number! pair! char! money! time! tuple!]
+]
+
+The prefix version is * value1 value2
+The infix version is value1 * value2   <- (VALUE1 * VALUE2) WILL BE COMPUTED
+                                          _BEFORE_ THE REST OF A SURROUNDING
+                                          LEFT-TO-RIGHT EXPRESSION
+
+Hope that helps :)} "Nick" "30-Nov-2012/6:06:49-8:00" {Notice there's a difference in performance between infix and prefix operators:
+
+do http://www.fm.vslib.cz/~ladislav/rebol/timblk.r
+>> time-block [loop 1000 [2 + 2]] .05
+== 4.4464111328125E-4
+>> time-block [loop 1000 [+ 2 2]] .05
+== 8.6083984375E-4} "Nick" "30-Nov-2012/6:16:26-8:00" {I'm not sure I can figure out which is consistently faster:
+
+R E B O L []
+
+factorial: func [n] [either > n 1 [* n factorial (- n 1)] [1]]
+wait 1
+start: now/time/precise
+loop 100000 [(factorial 3) * factorial 2]
+print now/time/precise - start
+wait 1
+start: now/time/precise
+loop 100000 [* factorial 3 factorial 2]
+print now/time/precise - start
+halt
+
+factorial: func [n] [either n > 1 [n * factorial (n - 1)] [1]]
+wait 1
+start: now/time/precise
+loop 100000 [(factorial 3) * factorial 2]
+print now/time/precise - start
+wait 1
+start: now/time/precise
+loop 100000 [* factorial 3 factorial 2]
+print now/time/precise - start
+halt
+
+0:00:02.231
+0:00:02.372} "Nick" "30-Nov-2012/6:24:24-8:00" {That's actually really interesting to me.  I always tend to use parentheses, but would have tended to consider the prefix notation more "REBOLish" (I remember reading somewhere that infix notation was first converted to prefix notation, then interpreted from there).  It'll be really interesting to see the code soon - I'm sure there will be all sorts of tests and optimization attempts...} "Nick" "30-Nov-2012/6:35:23-8:00" {Anyone know the answer to this already?  Is infix faster than prefix notation?} "Nick" "3-Dec-2012/22:36:04-8:00"] ["REBOL Channels of Communication" {This web forum exists to enable more open communication with the friendly REBOL community.  Please ask questions if you have any!
+
+There are several other active channels that REBOLers use to communicate online.  Be sure to click the links at the bottom of this forum's home page to see activity on AltME, the email list, Carl Sassenrath's blogs, and more.  AltME is particularly active, but newcomers often hesitate to join.  To use AltME:
+    
+1) Download AltME from http://www.altme.com/download.html
+
+2) Install and run AltME (some virus programs may complain, but it IS SAFE).
+
+3) Login using the following info, and then REQUEST YOUR OWN ACCOUNT:
+
+    World: REBOL-gate
+    Username: guest
+    Password: guest
+    
+You'll need to confirm the account setup steps by email, but that's very easy to do.
+
+If you have any trouble with the process above, you can also create an account at http://www.rebol.org/rl-mf01.r and then request an AltME account at http://www.rebol.org/aga-join.r .  By joining AltME, you'll find instant communication with a majority of active REBOLers today.
+
+The best place to search for answers to thousands of questions already answered is in the archives at http://rebol.org .} "Nick" "2-Jun-2010/11:59:31-7:00" {I released this topic from the top of the page stickies, since the last addition was over a year ago.  It will continue to be available, and eventually archived as a normal message.} "Nick" "4-Dec-2012/0:11:12-8:00"] ["Tips and Tricks" {This topic is for adding useful REBOL tips and tricks.  One of the most often asked questions by new users is where to find help on VID words, which are not available with the "help" function.  These lines provide a lot of useful information:
+
+editor extract svv/vid-styles 2   ; built in widgets
+editor svv/vid-words   ; layout words
+editor svv/facet-words   ; adjustable properties of widgets
+svv/vid-styles/TEXT-LIST/words  ; access the specific words related to individual widgets} "Nick" "23-Aug-2010/9:48:11-7:00" {<b> Here is a very nice way to learn how to write functions in Rebolish way? </b>
+
+Open console, type "? function!". This will show all the predefined functions which was written by Carl and other Rebol gurus.
+So you can learn and improve yourself by examining these functions.
+Just pick one of them like INPUT, READ-CGI etc. them type "?? READ-CGI"} "Endo" "24-Aug-2010/10:46:06-7:00" {A great extension of that idea is to use the following format to open the source of mezzanine functions in the built-in REBOL text editor:
+
+    editor mold :read-cgi  ; choose a function
+
+You can make changes to the built in functions, and assign new words to your changed functions, like this:
+
+    request2: do replace/all mold :request "bold" ""
+    request2/ok/type "An alert without bold text" 'alert
+
+That's a simple way to dig into code in a hands-on way, and to customize REBOL mezzanines :)} "Nick" "24-Aug-2010/15:56:47-7:00" {<b> How to create a block of random number / How Rebol uses series aggressively </b>
+
+Well, this is very easy for sure:
+    r: [] loop 10 [append r random 100]
+
+Here is a better way:
+    r: loop 10 [append [] random 10]
+
+Or even:
+    r: loop 3 [loop 5 [append [] random 10]]
+
+As you can see [] is initialized just once and used for whole life cycle of the loops. This is an example of how Rebol aggressively use series!.
+
+Or even better:
+loop 3 [loop 5 [append r: [] random 10]]
+
+Why this is better? Because, your loops can do something and return something else while filling up r.
+
+Here is an example:
+    loop 3 [loop 5 [append r: [] random 10] print "."]
+
+This won't work if you do:
+r: loop 3 [loop 5 [append [] random 10] print "."]
+
+** Script Error: r needs a value
+} "Endo" "25-Aug-2010/15:06:57-7:00" {<b> Converting tab separated string to html table </b>
+I use this function often, so it may help someone else:
+
+    to-table: func ["Returns a html table from tab separated string." t /local s] [
+        s: copy ""
+        append s reduce [<table> newline]
+        foreach row parse/all trim copy t "^^/" [
+            append s <tr>
+            foreach col parse/all row "^^-" [
+                append s reduce [<td> col </td>]
+            ]
+            append s reduce [</tr> newline]
+        ]
+        append s reduce [</table> newline]
+    ]
+
+And this is also very useful:
+
+    clipboard-to-table: has [s] [
+        write clipboard:// s: to-table read clipboard://
+        s
+    ]
+} "Endo" "14-Sep-2010/5:31:19-7:00" {<b> Between function </b>
+
+<pre>
+^-between: func [
+^-^-"Returns true if x is between a and b (a & b included)
+^-^-a [number!] b [number!] x [number!]
+^-] [1 <> multiply sign? a - x sign? b - x]
+</pre>
+
+>> between 5.3 6.9 5.9
+== true
+
+>> between 10 5 8
+== true
+
+>> between 5 5 5
+== true
+
+>> between 2 3 4
+== false
+} "Endo" "6-Dec-2011/12:41:31-8:00" {    between: func [ 
+         "Returns true if x is between a and b (a & b included)"
+         a [number!] b [number!] x [number!]
+     ] [1 <> multiply sign? a - x sign? b - x]
+} "Endo" "6-Dec-2011/12:42:52-8:00" {I released this topic from the top of the page stickies, since the last addition was over a year ago.  It will continue to be available, and eventually archived as a normal message.} "Nick" "4-Dec-2012/0:11:31-8:00"] ["Feature Requests" {Hi, I opened this topic to keep together all the feature requests for this forum. First of all, thank you very much for this clean & simple forum Nick. Please keep the simplicity.
+Here is my list,
+1) RSS feed
+2) Cookie for the "Name" field
+
+Of course there can be so many items on this list but we don't want to make it complicated, right?} "Endo" "17-May-2010/3:38:26-7:00" "Great suggestions!  I'm making a list..." "Nick" "17-May-2010/9:35:45-7:00" {Hmm there should be a New Messages link, otherwise it will be getting difficult to open items to see if there are new messages. But it would be easier after a user/login feature to store the last login date etc. or we can put all this kind of things into cookies but it will be machine specific then, not user.
+} "Endo" "17-May-2010/10:38:38-7:00" {How about a way to edit self posts?  I seem to respond back before proofreading, and find I'd like to fix it a bit.} "Steve Oldner" "17-May-2010/10:59:22-7:00" {Or delete?
+All this kind of things require username/password/login feature. So I think it would be on top of the list. Nick? :)} "Endo" "17-May-2010/11:22:38-7:00" {I've actually already got the code to do the edit/delete thing, without any account setup.  I just added a field for optional password entry, which is saved along with the message.  I'll add that as soon as I get a chance!} "Nick" "17-May-2010/11:41:23-7:00" {A chronological display option will also be pretty easy to implement - that's also right at the top of my list (now that the work week is here, it may take a few days...)} "Nick" "17-May-2010/11:44-7:00" {Nick, a very simple request: on the captcha page, add the REBOL Forum title line. Otherwise, it's a just bit too mysterious to new users.} "Carl Sassenrath" "17-May-2010/15:19:13-7:00" "Done :)" "Nick" "17-May-2010/23:58:37-7:00" {we also need a way to emphasize words. e.g  bold
+
+just testing anyway with the following line.
+can we do <b> bold </b> ?
+} "yuem" "23-May-2010/8:29:35-7:00" {sorry, pls ignore my previous comment, it can definitely do bold - as the previous test did confirm.} "yuem" "23-May-2010/8:31:23-7:00" {How about an answered checkbox?  Both my questions have been answered.  If some of the experienced REBOLers are looking to help, then these would be very low priority,so a checkbox might save them some time. } "Steve Oldner" "24-May-2010/7:26:09-7:00" {When I implement the user editing/deleting, I can add that feature :)} "Nick" "24-May-2010/16:30:04-7:00" {Nick, it would be nice if we can see the user name of the last post at the home page.} "Endo" "24-May-2010/16:58:03-7:00" "Done :)" "Nick" "24-May-2010/23:29:50-7:00" {is it possible to sort the messages so that the most recently updated/created message categories stay at the top? } "yuem" "29-May-2010/11:40:06-7:00" "Done :)" "Nick" "29-May-2010/13:26:42-7:00" "Great! :)" "Endo" "30-May-2010/8:55-7:00" {Is is possible to add parts of new messages into RSS feed? First 200 chars may be?} "Endo" "3-Jun-2010/2:50:20-7:00" "Done :)" "Nick" "3-Jun-2010/10:34:03-7:00" {We can put 2 search boxes which will be combined, Author and Message. So we can search like author="nick" AND message="protocol".
+A separate search page would be nice also (but keep the current one in home page)
+Not high priority features ofcourse.
+} "Endo" "10-Jun-2010/11:42:31-7:00" {I first said limit RSS feeds with 200 chars. But I think it is not necessary. Or we can make it bigger like 4096 chars. Because other rss feeds are not limited, HKM Design, Twitter etc.
+
+Second, could we make this Feature Request topic as sticky?} "Endo" "22-Jun-2010/7:23:53-7:00" "Done :)" "Nick" "22-Jun-2010/9:54:51-7:00" {@Nick: Could you put the source code of this forum in uncompressed format, so we can see the source inside the browser when you make a new update, without "do"ing the link and see in editor. or am I too lazy? :)} "Endo" "23-Jun-2010/15:04:53-7:00" {Since there's a lot of HTML in the program, it won't display correctly.  Compressing is the fastest and most reliable way that I can think to to deliver it.  If you have any ideas about how else to do it, I'd be happy to try out anything...} "Nick" "23-Jun-2010/21:31:06-7:00" {Nick, to format a line as code, putting 4 spaces at start of the line is not enough? They look ordinary lines even I put 4 spaces? Am I doing something wrong?} "Endo" "3-Aug-2010/11:12:47-7:00" {Yes, 4 spaces, or a tab will work for indentation:
+
+    Here are spaces used for indentation.
+    Tabs are used here.} "Nick" "4-Aug-2010/9:56:54-7:00" {In what message didn't it work?  I'll check the data to see what happened...} "Nick" "4-Aug-2010/9:59:01-7:00" {Endo, your padding and similarity functions are indented properly when I view them.  Are they not displaying properly for you?  (check the source, and you should see all the  & n b s p ;  characters added for formatting).} "Nick" "4-Aug-2010/10:04:41-7:00" {Nick, each time when I send a message, I enter the topic again to see my message.
+So I think that it is better to stay in current topic after sending a message instead of going to home page.} "Endo" "23-Aug-2010/3:40:48-7:00" {A sticky "Tips & Tricks" topic would be nice.} "Endo" "23-Aug-2010/6:24:03-7:00" {Houston we got a problem! Spams! They're everywhere!} "Endo" "27-Feb-2011/9:39:08-8:00" {Messages can be shown in reverse order, newest first.
+Or put a javascript code to scroll to bottom of page when the page loaded.
+Can be useful in long pages.} "Endo" "7-Mar-2011/16:35:27-8:00" {Can Rebol be implemented in Javascript? If so it would help Rebol adoption greatly and it can become defacto for all Web Development. This is not far fetched as Python a more complex language has been implemented in Javascript (http://www.skulpt.org/) already.} "JFK" "15-Apr-2011/2:48:16-7:00" {Came across a Ruby (RubyJS) implementation in Javascript as well. Here goes: http://www.ntecs.de/projects/rubyjs/} "JFK" "15-Apr-2011/2:58:16-7:00" {Gabriele has made a proof of concept, but it was a few hundred times slower than REBOL.} "Kaj" "19-Apr-2011/16:15:41-7:00" {I released this topic from the top of the page stickies, since the last addition was over a year ago.  It will continue to be available, and eventually archived as a normal message.} "Nick" "4-Dec-2012/0:10:55-8:00" {its an odd bug perhaps, i had 
+"Suggestions for new forum features page open," refreshed it and get this 
+"(released sticky) Feature Requests"
+in its place, its odd but perhaps useful if its displaying the latest post at the top of the front page.... before i looked there} "BugMeNot" "4-Dec-2012/5:12:39-8:00" {hmmm BUG in the new code seems to also now put me back into the front page after i posted the above too, is it intended, or an oversight} "BugMeNot" "4-Dec-2012/5:17:04-8:00" {its probably something to do with the "Permalink" code you added and seems to have happened when you released the sticky's between my page refresh} "bugmenot" "4-Dec-2012/5:38:39-8:00" {Bugmenot, the topic numbers change as new topics are added, so a new post was added before you refreshed - that's why I added the permalink feature.  I'm thinking that the permalink may be the best default viewing link.} "Nick" "5-Dec-2012/7:34:29-8:00" {being able to see who is logged on or being able to send a "PM" message to a contributor would be a nice feature but not essential} "Robert  Wiggins" "24-Dec-2012/10:29:17-8:00" {I did not realize this site was still active.  That might have been my problem, but I am trying to decide why I thought so.  Is it possible to highlight items that I myself have not read?  Check www.bikeforums.net where they seem to do that.  Also, maybe you are doing this, are posts sorted so that the ones with the most recent activity are at the top?  And finally, I think that the font size should be a little bigger.  It is hard to glance at the page and know instantly of something has been updated recently.  I have to  stare at it for a second to "acquire" the posting dates.  (Once again, that might be just my problem.)  Thank you. } "Steven White" "28-Dec-2012/9:28:04-8:00" {I answered one of my questions myself by the preceding posting.  This topic floated to the top of the list after I made the post.  } "Steven White" "31-Dec-2012/10:50:59-8:00"] ["File/Directory handling problem" {I,m new to Rebol and this is my first attempt to program with it. I would appreciate any help that someone can provide on the following:
+
+Rebol Console seems to tell me the file doesn't exist when it really does. I'm doing something wrong here but I can't seem to resolve it. Code and execution follows:
+
+REBOL/View 2.7.8.3.1 1-Jan-2011
+Copyright 2000-2011 REBOL Technologies.  All rights reserved.
+REBOL is a trademark of REBOL Technologies. WWW.REBOL.COM
+>> R E B O L []
+== []
+>> Probe Find %"/C/Users/Robert Wiggins/AppData/Roaming/Microsoft/CFSWW1 Over Flanders Fields/CFS3.xca"
+none
+== none
+>> what-dir
+== %/C/Users/Public/Rebol%20Utils/rebol/view/
+>> list-dir} "Robert Wiggins" "23-Dec-2012/19:33:06-8:00" {Addendum to last post:
+
+I'm runing Windows Vista Ultimate and my Rebol.exe has "Run as Administrator" defined so hopefully I'm not experiencing an "Auth" problem.} "Robert Wiggins" "23-Dec-2012/19:36:56-8:00" {Did you try just using PROBE without FIND? I'm not on Windows, but FIND and PROBE FIND both give none as the result with a known file. PROBE by itself, however, does return the complete path to the file.} "human being" "23-Dec-2012/20:56:57-8:00" {Hi Robert,
+
+You shouldn't use quotes in a file type.  You can use either of these to refer to the file:
+
+to-file "/C/Users/Robert Wiggins/AppData/Roaming/Microsoft/CFSWW1 Over Flanders Fields/CFS3.xca"
+
+%/C/Users/Robert%20Wiggins/AppData/Roaming/Microsoft/CFSWW1%20Over%20Flanders%20Fields/CFS3.xca} "Nick" "23-Dec-2012/22:50:41-8:00" {Nick's suggestion of using "to-file" worked for me. Thanks for the response folks, it is appreciated.
+
+I have one more ? I want to copy a file from one location on a disk to another location. I'm not sure if I should be using "Read" and "Write" to do this. I just want to do a sort of backup of a file. Any recommendations?? Thanks} "Robert Wiggins" "24-Dec-2012/9:27:06-8:00" {Hi Robert,
+
+You can do:
+
+write %backup.fil read %source.fil
+
+or, if it's a binary file:
+
+write/binary %backup.fil read/binary %source.fil} "Nick" "1-Jan-2013/21:38:18-8:00"] ["Rebol3 ported to Android" {Today Saphirion made their first successful port of R3 to Android:
+
+http://development.saphirion.com/experimental/R3droid.apk
+
+To start off, I'm offering a matching donation up to $500, to Saphirion, for this work.  If you'd like to donate, their paypal link is sales@saphirion.com} "Nick" "20-Dec-2012/9:03:44-8:00" {I've tested the above .apk on a Huawei M865C, and it works.  Cyphre is working on enabling console input next.
+
+I think Android presents a great opportunity for Rebol evangelism - and I can't wait to be able to use it myself!} "Nick" "20-Dec-2012/9:29:17-8:00" {Done... just sent a paypal to them for $10.  I am a complete noob w/rebol as I've not programmed for years except for some python.   But I like the idea of Android getting something like this.
+Brian
+} "bmullan" "20-Dec-2012/9:48:51-8:00" "I'm glad to see this gaining momentum!" "Nick" "20-Dec-2012/11:46:34-8:00" {Thanks to you guys. This really pushes motivation. We keep working on it. Console input is next.} "Robert (Saphirion)" "20-Dec-2012/13:37:46-8:00" "Great, thanks your forks!" "limux" "21-Dec-2012/10:29:12-8:00" "Console input is now functional." "Nick" "7-Jan-2013/12:46:47-8:00"] ["R3-GUI" {I have a lot of questions about R3-GUI:
+-what is it?
+-will be included in Rebol 3?
+-will be open source?
+-will be cross platform?
+-will be on GitHub?} "MaxV" "8-Jan-2013/5:21:19-8:00" {- R3 GUI is completly new GUI system, done from scratch for R3 language by Saphirion, as an continuation of original Carl Sassenrath's (RT) effort. It is not just slightly improved VID2, it is new GUI system, addressing what Rebol community wished for a long time, in regards to Rebol's GUI system
+
+- it is available for R3, for free, so you can use it. Whether it will be accepted to official R3 distro, we will see. Even if it would not be accepted, it is still going to be available, and I am not sure we can expect Carl to continue his initial development effort
+
+- it is open source, not sure about the licence
+
+- R3 GUI is a Rebol level code, so it should be cross-platform, as far as View gfx engine is ported to such a platform
+
+- most probably it will end-up on Github, that is upon Saphirion to decide. So far, you can download it from their website - http://development.saphirion.com} "-pekr-" "8-Jan-2013/5:28:44-8:00" "And what is http://www.r3gui.com  ?" "MaxV" "8-Jan-2013/6:56:24-8:00" "Graham's copy of Carl's documentation." "Kaj" "8-Jan-2013/15:58:14-8:00"] ["<i>Sticky: IMPORTANT - Permalinks</i>" {To link to any topic in this forum, <i>be sure to use the "Permalink" URL at the top of each topic page</i>.  
+
+Links which include "topicnumber=<#>&archiveflag=new" will point to changing topics as new posts are added (the topicnumber is it's <i>current position</i> in the topic list).  
+
+Permalinks containing "f=printtopic&permalink=<namedatetime>" will always link to the same topic, even after being added to the archive.} "Nick" "4-Dec-2012/0:20:15-8:00" {Try clicking the "Permalink" above to see the URL that should be used for linking.} "Nick" "4-Dec-2012/0:21:31-8:00" {Why don't you number threads?
+There is also the cript for long integers: 
+http://rebol2.blogspot.it/2011/12/big-numbers.html
+
+Or you can start the url we the date of thread creation, so threads are unique.} "MaxV" "21-Dec-2012/4:09:18-8:00" {Just a matter of finding time to make the permalink the default display link.} "Nick" "22-Dec-2012/23:35:14-8:00"] ["<i>Sticky: REBOL SOURCE HAS BEEN RELEASED</i>" {Carl released the REBOL source code today (R3).  It's available at:
+
+https://github.com/rebol/r3} "Nick" "12-Dec-2012/8:56:23-8:00"]
