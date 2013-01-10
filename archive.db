@@ -1,4 +1,18 @@
-["Welcome" {Welcome to the forum!  Please try to keep discussions on topic :)} "Nick" "15-May-2010/1:15:03-7:00" "Thanks for setting this up Nick." "Gregg" "16-May-2010/16:24:33-7:00" "I hope it gets used!" "Nick" "16-May-2010/23:01:08-7:00" "Thanks for the work, I always like simple & clean." "Endo" "17-May-2010/3:40:51-7:00" {I had a simple request to get info from our SAP production system, to compare 2 files of cost center text and output the differences in the text for FY 2011.  How do I do it in REBOL?
+[
+"Welcome" 
+{Welcome to the forum!  Please try to keep discussions on topic :)} 
+"Nick" 
+"15-May-2010/1:15:03-7:00" 
+
+"Thanks for setting this up Nick." 
+"Gregg" "
+16-May-2010/16:24:33-7:00" 
+
+"I hope it gets used!" 
+"Nick" 
+"16-May-2010/23:01:08-7:00" 
+
+"Thanks for the work, I always like simple & clean." "Endo" "17-May-2010/3:40:51-7:00" {I had a simple request to get info from our SAP production system, to compare 2 files of cost center text and output the differences in the text for FY 2011.  How do I do it in REBOL?
 
 The record format for file 1 is fixed; example
 "201185241008524100ENVIR SERVICES EXECUTIVE      1000SP01A2" and 
@@ -25,7 +39,10 @@ Good Work!} "Steve Oldner" "17-May-2010/8:11:33-7:00" {Thanks Steve :)  I respon
 
 wished they had walked the talk with Altme.
 
-} "yuem" "23-May-2010/8:21:01-7:00"]["Instructions" {You can post links and code (use 4 spaces for tabs): 
+} "yuem" "23-May-2010/8:21:01-7:00"]
+
+
+["Instructions" {You can post links and code (use 4 spaces for tabs): 
     
 http://yahoo.com 
     

@@ -11,4 +11,4 @@ See the wiki for further informations.
 
 #Notice
 
-All *.db* files are only for example, the original one are on http://rebolforum.com/
+All *.db* files are only for example, the original ones are on http://rebolforum.com/
