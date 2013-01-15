@@ -43,7 +43,7 @@ print {<html>
 <HEAD>
 <TITLE>REBOL Forum</TITLE>
 <link rel="alternate" type="application/rss+xml" title="rebolforum.com rss feed" href="./index.rsp?type=rss" /></HEAD>
-<BODY bgColor=#808080>
+<BODY >
 <CENTER>
 <h1>REBOL Forum</H1>}
 
