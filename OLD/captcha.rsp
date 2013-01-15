@@ -1,0 +1,8 @@
+<%
+
+    response/buffer: captcha/generate
+    response/set-header 'Content-type "image/png"
+
+    session/content/captcha-text: captcha/text
+
+%>
