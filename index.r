@@ -8,13 +8,7 @@ either  object? request [cgi: copy request/query-string]  [cgi: copy system/opti
 cgi: context decode-cgi cgi ;so we create the cgi object
 
 
-if (select cgi 'type) = "source" [
-    print "<html>"
-    print {<pre> REBOL []  editor decompress }
-    print read %index.rsp
-    print [</pre>    </html>]
-    quit
-]
+
 
 do %db.r
 
@@ -93,7 +87,7 @@ if (select cgi 'type) = "thread" [
 	
 	print {</tr></table>}
 	;main table
-	print {<table border=1 cellPadding=20 cellSpacing=2 width=85% >
+	print {<table border=1  width=85% >
 <tr> <th> User </th> <th>post</th></tr>}
 
 	threads:  db-select/where/order  [ID2 title date Author post]   archive [ID =  to-integer cgi/ID]  ID2
@@ -145,7 +139,7 @@ if any [
 		}
 	
 	;main table
-	PRINT {<table border=1 cellPadding=20 cellSpacing=2 width=85% >
+	PRINT {<table border=1 cellpadding=10 width=85% >
 <tr> <th> TITLE </th> <th>POSTS</th><th>DATE</th><th>AUTHOR</th></td>}
 	titles: db-select/where/order/desc  [ID title date Author] archive [ID2 = 1] ID  ;ID=2  are the firsts post of a thread
 	either select cgi 'page [page: to-integer cgi/page] [page: 1]	
@@ -203,7 +197,7 @@ print { <hr>
 <td><a height=40px href=http://softinnov.org/><img src=softinnov.png height=40px ></a></td>
 <td></td></tr>
 </table>
-<a href=./index.rsp?type=source>source</a> 
+<a href=./index.r>source</a> 
 -
 <a href=./index.rsp?type=rss>rss</a> 
 -

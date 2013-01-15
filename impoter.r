@@ -1,6 +1,6 @@
-Rebol []
+Rebol [ ]
 
-;import function
+;import old database to the new one, it isn't necessary to forum
 ; Columns [ID ID2 Title post Author date]
 
 temp: load %archive.db

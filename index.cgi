@@ -3,15 +3,7 @@ REBOL []
 
 domain: "http://rebolforum.com/index.cgi"
 
-temp: read %index.rsp
-
-replace/all  temp "<%"  "}"
-
-replace/all  temp "%>"  "^/ print {"
-
-insert temp "print { "
-
-append temp "}"
+temp: read %index.r
 
 replace/all temp "index.rsp"  "index.cgi"
 
